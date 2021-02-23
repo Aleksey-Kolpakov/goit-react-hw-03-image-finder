@@ -1,9 +1,8 @@
 import React from 'react';
-import fetchImages from '../../utils/backend-services'
-
+import styles from './ImageGallery.module.css'
 const ImageGallery = ({ children }) => {
     return (
-        <ul className="ImageGallery">
+        <ul className={styles.ImageGallery}>
             {children}
         </ul>
     );
