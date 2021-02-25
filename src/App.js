@@ -26,7 +26,8 @@ class App extends Component {
   }
   searchImages = (submitValue) => {
     this.setState({
-      searchQuerry: submitValue
+      searchQuerry: submitValue,
+      pageNumber: 1,
     })
   }
   openImage = (id) => {
@@ -34,31 +35,29 @@ class App extends Component {
     this.setState({ imageToOpen: imageToOpen.largeImageURL })
   };
   loadMore = () => {
-    const { searchQuerry, pageNumber } = this.state;
+    this.setState(prevState => ({
+      pageNumber: prevState.pageNumber + 1
+    }))
+  }
+
+  paintImages = (searchQuerry, pageNumber) => {
     this.setState({ isLoading: true });
     fetchImages(searchQuerry, pageNumber)
       .then(images => {
         this.setState(prevState => ({
-          images: [...prevState.images, ...images],
-          pageNumber: prevState.pageNumber + 1
+          images: (pageNumber > 1 ? [...prevState.images, ...images] : [...images]),
         }));
-        window.scrollTo({
+        pageNumber > 1 && window.scrollTo({
           top: document.documentElement.scrollHeight,
           behavior: 'smooth',
         });
       }
       ).finally(() => this.setState({ isLoading: false }))
   }
-
   componentDidUpdate(prevProps, prevState) {
-    const { images, searchQuerry, imageToOpen } = this.state;
-    if (prevState.searchQuerry !== searchQuerry) {
-      this.setState({ isLoading: true });
-      fetchImages(searchQuerry).then(images => this.setState({
-        images: [...images],
-        pageNumber: this.state.pageNumber + 1
-      })).finally(() => this.setState({ isLoading: false }))
-
+    const { images, searchQuerry, pageNumber } = this.state;
+    if (prevState.pageNumber !== pageNumber || prevState.searchQuerry !== searchQuerry) {
+      this.paintImages(searchQuerry, pageNumber);
     }
   }
   render() {
@@ -77,7 +76,6 @@ class App extends Component {
           color="#00BFFF"
           height={80}
           width={80}
-
         />}
       </div>
     );
